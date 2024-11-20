@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    const myLocalStorage = (()=>{
+      let id;
+      id = setInterval(()=>{
+        const currTimeStamp = new Date().getTime()
+        Object.keys(localStorage).forEach(key => {
+          const valString = localStorage.getItem(key)
+          const [val,timestamp] = JSON.parse(valString)
+          if(timestamp<currTimeStamp)
+            localStorage.removeItem(key)
+        })
+      },2000)
+      return {
+        getItem: (key) => {
+          const valString = localStorage.getItem(key)
+          if(valString){
+            const [val,timestamp] = JSON.parse(valString)
+            if(new Date().getTime()<timestamp)
+              return val
+            else
+              localStorage.removeItem(key)
+          }
+          return null
+        },
+        setItem: (key,value,time) => {
+            localStorage.setItem(key,JSON.stringify([value,+(new Date().getTime())+ +time]))
+        },
+        clearItem: ()=>{
+          clearInterval(id)
+          localStorage.clear()
+        }
+      }
+    })()
+
+    myLocalStorage.setItem('foo','bar',1000)
+    myLocalStorage.setItem('boo','bar',1000)
+    myLocalStorage.setItem('aoo','bar',1000)
+    myLocalStorage.setItem('boo','bar',4000)
+    myLocalStorage.setItem('coo','bar',1000)
+    myLocalStorage.setItem('doo','bar',1000)
+    console.log(Object.keys(localStorage))
+    console.log(myLocalStorage.getItem('foo'))
+    setTimeout(()=>{
+      console.log(myLocalStorage.getItem('foo'))
+    },2000)
+
+    setTimeout(()=>{
+      console.log(Object.keys(localStorage))
+    },3000)
+  </script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+    /**
+*
+*
+* Create a TaskRunner
+*
+* Perform tasks sequentially
+*
+* 1. timeout of 2s
+* 2. retry limit of 2
+*
+*
+*/
+
+class TaskRunner {
+/// implementation
+    q;
+    timeout;
+    isRunning;
+    constructor(){
+        this.q = []
+        this.timeout = 2000
+        this.isRunning = false
+    }
+    enqueue(t,cb){
+        this.q.push([t,cb,0])
+        if(!this.isRunning){
+            this.isRunning = true
+            this.runAgain()
+        }
+    }
+    runAgain(){
+        if(this.q.length){
+            this.start()
+        }
+        else{
+            this.isRunning = false
+        }
+    }
+    async start(){
+        const el = this.q[0]
+        this.q = this.q.slice(1)
+        let task = el[0]
+        let callback = el[1]
+        let retries = el[2]
+        const obj = {}
+        const p1 = new Promise((res,rej)=>{
+            setTimeout(()=>{
+                res(null)
+            },this.timeout)
+        })
+        const p2 = new Promise((res,rej)=>{
+                return task(res,rej)
+        })
+        Promise.race([p1,p2]).then(val => {
+            if(val === null){
+                if(retries<2){
+                    this.q.unshift([task,callback,retries+1])
+                }
+                obj.error = "ERROR"
+            }
+            else{
+                obj.data = val   
+            }
+            callback(obj)
+            console.log((new Date()).getTime() - tNow)
+            this.runAgain()
+        })
+        .catch(err => {
+            obj.error = err
+            callback(obj)
+            console.log((new Date()).getTime() - tNow)
+            this.runAgain()
+        })
+        
+    }
+}
+
+const task1 = (complete,fail) =>
+setTimeout(()=> complete("First task is completed") ,1000)
+
+const task2 = (complete,fail) =>
+setTimeout(()=> fail("Second task is failed"),2000)
+
+const task3 = (complete,fail) =>
+setTimeout(()=> fail("Third task is failed") ,3000)
+
+const callback = ({data,error}) =>{
+    console.log({data,error})
+}
+
+const runner = new TaskRunner()
+const tNow = (new Date()).getTime()
+runner.enqueue(task1, callback)
+runner.enqueue(task2, callback)
+runner.enqueue(task3, callback)
+
+
+// t=0, // task runner starts
+// t=1, {data: "First task is completed", error: "" }
+// t=2  {data: "", error: "Second task is failed" }
+// t=4  {data: "", error: "ERROR" }
+// t=6  {data: "", error: "ERROR" }
+// t=8  {data: "",error: "ERROR" }
+    </script>
+  </body>
+</html>

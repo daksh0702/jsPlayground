@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Drag and Drop - Link Effect</title>
+  <style>
+    .draggable {
+      width: 100px;
+      height: 100px;
+      background-color: coral;
+      margin: 20px;
+      cursor: grab;
+    }
+    .dropzone {
+      width: 200px;
+      height: 200px;
+      border: 2px dashed #ccc;
+      margin: 20px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>header</div>
+  </header>
+  <main>
+    <div>main</div>
+  </main>
+  <footer>
+    <div>footer</div>
+  </footer>
+  <div class="draggable" draggable="true">Drag me!</div>
+  <div class="dropzone"></div>
+
+  <script>
+    const draggable = document.querySelector('.draggable');
+    const dropzone = document.querySelector('.dropzone');
+
+    draggable.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('text/plain', 'This is a draggable item');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const data = e.dataTransfer.getData('text/plain');
+      dropzone.appendChild(draggable);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      // function curry(fn) {
+      //   // your code here
+      //   const arity = fn.length;
+      //   const isPlaceholder = (val) => {
+      //     return val === curry.placeholder;
+      //   };
+
+      //   return function curried(...args) {
+      //     if (
+      //       args.length >= arity &&
+      //       !args?.slice(0, arity)?.includes(curry.placeholder)
+      //     ) {
+      //       return fn(...args);
+      //     }
+      //     return function (...newArgs) {
+      //       const finalArgs = args.map((val) =>
+      //         isPlaceholder(val) && newArgs.length ? newArgs.shift() : val
+      //       );
+      //       return curried(...finalArgs, ...newArgs);
+      //     };
+      //   };
+      // }
+
+      // const join = (a, b, c) => {
+      //   return `${a}_${b}_${c}`;
+      // };
+
+      // const curriedJoin = curry(join);
+      // const _ = curry.placeholder;
+      // console.log(curriedJoin(_, _, 3, 4)(1, _)(2, 5));
+
+
+
+
+
+
+    // We need the arity before hand to compute or we need to supply in some execute statement else it will keep on expecting more arguments
+    const execute = Symbol('execute')
+      function curry(fn, arity) {
+        // your code here
+        // const arity = fn.length;
+        const isPlaceholder = (val) => {
+          return val === curry.placeholder;
+        };
+
+        return function curried(...args) {
+        //   if (args.length >= arity && !args.some(isPlaceholder)) {
+            if(args.some(val => val === execute)){
+            return fn(...args);
+          }
+          return function (...newArgs) {
+            const finalArgs = args.map((val) =>
+              isPlaceholder(val) && newArgs.length ? newArgs.shift() : val
+            );
+            return curried(...finalArgs, ...newArgs);
+          };
+        };
+      }
+
+      curry.placeholder = Symbol();
+
+    
+      const join = (...args) => {
+        return args.filter(el => typeof el === 'number' ).join('_')
+      };
+
+      const curriedJoin = curry(join,5);
+      const _ = curry.placeholder;
+      
+
+      console.log(curriedJoin(1, 2, 3, 4)(execute))
+      console.log(curriedJoin(1,2)(3)(execute))
+      console.log(curriedJoin(1,2)(4)(execute))
+      console.log(curriedJoin(_,_,3,4)(1,_)(2,5)(execute))
+      console.log(curriedJoin(_,_,_,_)(_,2,_)(_,3)(1)(execute))
+    </script>
+  </body>
+</html>
+
+
+<script type="module">
+    function curry(fn) {
+      // your code here
+      const arity = fn.length;
+      const isPlaceholder = (val) => {
+        return val === curry.placeholder;
+      };
+
+      return function curried(...args) {
+        if (
+          args.length >= arity &&
+          !args?.slice(0, arity)?.includes(curry.placeholder)
+        ) {
+          return fn(...args);
+        }
+        return function (...newArgs) {
+          const finalArgs = args.map((val) =>
+            isPlaceholder(val) && newArgs.length ? newArgs.shift() : val
+          );
+          return curried(...finalArgs, ...newArgs);
+        };
+      };
+    }
+
+    const join = (a, b, c) => {
+      return `${a}_${b}_${c}`;
+    };
+
+    const curriedJoin = curry(join);
+    const _ = curry.placeholder;
+    console.log(curriedJoin(_, _, 3, 4)(1, _)(2, 5));
+  </script>

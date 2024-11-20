@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <!-- FIX MyPromise as .race isn't working -->
+    <script>
+        // Promise.all([promises]) -> waits for all promises to resolve and then returns and if any promise rejects it simply rejects
+        // Promise.race([promises]) -> whichever promise settles(resolves or rejects) first 
+        // Promise.allSettled([promises]) -> after all promises settle be it resolved or rejected. No catch statement here
+        // Promise.any([]) -> will resolve any promise if there else rejects with 'AggregateError: All promises were rejected'
+        // let { promise, resolve, reject } = Promise.withResolvers(); all promise,resolve,reject live in same context
+        class MyPromise{
+            q;
+            resolutionState; // normal, error
+            currVal;
+            status; // resolved,rejected,pending
+            constructor(callback){
+                this.q = []
+                this.currVal = null
+                this.status = 'pending'
+                this.resolutionState = 'normal'
+                this.currKind = null
+                setTimeout(()=>{
+                    callback(this.resolve.bind(this),this.reject.bind(this))
+                })
+            }
+
+            then(callback){
+                this.q.push({type:'then',callback})
+                return this
+            }
+
+            catch(callback){
+                this.q.push({type:'catch',callback})
+                return this
+            }
+
+            executeCallbacks(){
+                let i = 0;
+                while(i<this.q.length){
+                    // console.log('this',this)
+                    if(this.resolutionState == 'normal'){
+                        if(this.q[i]['type'] === 'then'){
+                            try {
+                                this.currVal = this.q[i]['callback'](this.currVal)
+                                i++
+                            } catch (error) {
+                                this.resolutionState = 'error'
+                                this.currVal = error
+                                i++;
+                            }
+                        }
+                        else{
+                            i++;
+                        }
+                    }
+                    else{
+                        if(this.q[i]['type'] === 'catch'){
+                            this.currVal = this.q[i]['callback'](this.currVal)
+                            if(this.currVal)
+                                this.resolutionState = 'normal'
+                            i++
+                        }
+                        else{
+                            i++;
+                        }
+                    }
+                    
+                    
+                } 
+                this.q = []
+            }
+
+            resolve(arg){
+                if(arg!=undefined)
+                    this.currVal = arg
+                this.resolutionState = 'normal'
+                this.status = 'resolved'
+                this.executeCallbacks()
+                return this
+            }
+
+            reject(arg){
+                if(arg!=undefined)
+                    this.currVal = arg
+                this.resolutionState = 'error'
+                this.status = 'rejected'
+                this.executeCallbacks()
+                return this
+            }
+
+            static async all(promises){
+                let result = new Array(promises.length)
+                let remaining = promises.length
+                return new MyPromise((res,rej)=>{
+                    promises.forEach((promise,ind) => {
+                        if(promise instanceof MyPromise || promise instanceof Promise){
+                            promise.then(val => {
+                                result[ind] = val
+                                remaining--;
+                                if(remaining == 0)
+                                    res(result)
+                            })
+                            .catch(err => rej(err))
+                        }
+                        else{
+                            result[ind] = promise
+                            remaining--;
+                            if(remaining == 0)
+                                res(result)
+                        }
+                    })
+                })
+            }
+
+            static allSettled(promises){
+                let result= new Array(promises.length)
+                let remaining = promises.length
+               return new MyPromise((res,rej)=>{
+                    promises.forEach((promise,ind) => {
+                        if(promise instanceof MyPromise || promise instanceof Promise){
+                            promise.then(val => {
+                                result[ind] = {status: 'fulfilled', value:val}
+                                remaining--;
+                                if(remaining==0)
+                                    res(result)
+                            }).catch(err => {
+                                result[ind] = {status: 'rejected', value:err}
+                                remaining--;
+                                if(remaining==0)
+                                    res(result)
+                            })
+                        }
+                        else{
+                            result[ind] = {status: 'fulfilled', value: promise}
+                            remaining--;
+                            if(remaining == 0)
+                                res(result)
+                        }
+                    })
+                })
+            }
+
+            static any(promises){
+                let remaining = promises.length
+                return new MyPromise((res,rej)=>{
+                    promises.forEach(promise => {
+                        if(promise instanceof MyPromise || promise instanceof Promise)
+                            promise.then(val => {
+                                res(val)
+                            })
+                            .catch(err => {
+                                remaining--;
+                                if(remaining == 0)
+                                    rej('AggregateError: All promises were rejected')
+                            })
+                        else
+                            res(promise)
+                    })
+                })
+            }
+
+            static async race(promises){
+                  return new MyPromise((res,rej)=>{
+                        promises.forEach(promise => {
+                            try {
+                                if(promise instanceof MyPromise || promise instanceof Promise){
+                                    promise.then(res).catch(rej)
+                                }
+                                else{
+                                    res(promise)
+                                }
+                            } catch (error) {
+                                rej(error)
+                            }
+                        }).bind(this)
+                    })
+            }
+
+            static resolve(val){
+                return new MyPromise((res,rej)=>{
+                    res(val)
+                })
+            }
+
+            static reject(val){
+                return new MyPromise((res,rej)=>{
+                    rej(val)
+                })
+            }
+        }
+
+        // new Promise((res,rej)=>{
+        //     setTimeout(()=>{
+        //         res(1)
+        //     },1000)
+        // }).then(val => {
+        //     console.log('original',val)
+        //     return val*2
+        // })
+        // .then(val => {
+        //     console.log(val)
+        //     throw new Error('error original')
+        // })
+        // .catch(err => {
+        //     console.log('original',err)
+        //     return 'hey'
+        // })
+        // .then(val => {
+        //     console.log('original',val)
+        // })
+
+        // new MyPromise((res,rej)=>{
+        //     setTimeout(()=>{
+        //         res(1)
+        //     },1000)
+        // }).then(val => {
+        //     console.log('polyfill',val)
+        //     return val*2
+        // })
+        // .then(val => {
+        //     console.log(val)
+        //     throw new Error('error polyfill')
+        // })
+        // .catch(err => {
+        //     console.log('polyfill',err)
+        //     return 'hey'
+        // })
+        // .then(val => {
+        //     console.log('polyfill',val)
+        // })
+
+
+        const promise1 = new Promise((resolve, reject) => {
+            setTimeout(resolve, 500, 'one');
+        });
+
+        const promise2 = new Promise((resolve, reject) => {
+            setTimeout(resolve, 100, 'two');
+        });
+
+        const promise3 = new Promise((resolve,reject)=>{
+            reject('reject')
+        })
+
+        const promise4 = 2
+
+        MyPromise.any([promise1, promise2, promise3]).then((value) => {
+            console.log(value);
+        // Both resolve, but promise2 is faster
+        })
+        .catch(err => console.log(err));
+
+        MyPromise.resolve(2)
+        MyPromise.reject(2)
+    </script>
+</body>
+</html>

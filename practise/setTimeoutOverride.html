@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+        const f1 = () => {
+            setTimeout(()=>console.log('f1 executed'),1000)
+        }
+
+        // wait on a function with its delay known
+        // f1()
+        // setTimeout(()=> {
+        //     console.log('this will execute after f1')
+        // },1000)
+
+
+        // wait on a function if we can pass it a callback
+        // const f2 = (cb) => {
+        //     setTimeout(()=>cb('f2 executed'),2000)
+        // }
+        // new Promise((res)=>{
+        //     f2((...args)=>{
+        //         res(...args)
+        //     })
+        // }).then((val)=> console.log('resolved value:',val))
+        // .catch(err => console.log('err',err))
+
+
+        // *******************  IMPORTANT ****************
+        // *** When you can't modify function whatsover and have to do polling
+        
+
+        // 1. Monkey Patching - Temporarily modifying a global function
+        const f1WithPromise = () => {
+            return new Promise((res)=>{
+                const originalTimeout = setTimeout
+
+                window.setTimeout = (cb,delay)=>{
+                    const wrappedCallback = () => {
+                        cb()
+                        console.log('done setTimeout callback')
+                        window.setTimeout = originalTimeout
+                        res()
+                    }
+                    return originalTimeout(wrappedCallback,delay)
+                }
+                f1()
+            })
+        }
+
+        f1WithPromise().then(val=> console.log('f1WithPromise',val))
+
+        // 2. Proxy
+        // looked same as monkey patching
+    </script>
+  </body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        function after5s(x){
+          return new Promise(res => {
+            setTimeout(()=>{
+              res(x)
+            },5000)
+          })
+        }
+  
+        async function mult(inp){
+          const f = await after5s(3)
+          const g = await after5s(4)
+  
+          return inp * f *g
+        }
+  
+        mult(2).then(val => {
+          console.log('mult')
+          console.log(val)
+        })
+  
+  
+        async function second_mult(inp){
+          const f = after5s(3)
+          const g = after5s(4)
+  
+          return inp * await f * await g
+        }
+  
+        second_mult(2).then(val => {
+          console.log('second mult')
+          console.log(val)}
+        )
+      </script>
+     <script>
+        async function getData(){
+          const result = await fetch('https://dummyjson.com/products/search?q=phone')
+          return result
+        }
+        let a=[]
+        for(let i=0;i<5;i++){
+          a.push(getData())
+        }
+        console.log(Promise.all(a).then(val => console.log(val)))
+      </script> 
+    <script>
+      debugger
+        var myModule = (function(){
+            var myVariable = 'hey'
+            function myFunc(){
+              console.log(myVariable)
+            }
+    
+            return function(){
+              myFunc()
+            }
+          })()
+    
+          myModule()
+          console.log(myModule.myVariable)
+    </script>
+  <script>
+        const sp = () => Promise.resolve('A')
+        function f(){
+          sp().then(result => console.log(result))
+          console.log('B')
+        }
+        async function g(){
+          console.log(await sp())
+          console.log('B')
+        }
+  
+        f()
+        g()
+      </script>
+</body>
+</html>

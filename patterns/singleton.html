@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        class Singleton{
+            static ref=null;
+            data=null;
+            constructor(){
+                if(Singleton.ref){
+                    return Singleton.ref
+                }
+                this.data = null
+                Singleton.ref = this
+                // the new operator in JavaScript automatically returns this if the constructor does not explicitly return an object
+            }
+            getData(){
+                return this.data
+            }
+            setData(val){
+                this.data = val;
+            }
+        
+        }
+
+
+       const instance1  = new Singleton()
+       instance1.setData('hello')
+       const instance2 = new Singleton()
+       console.log(instance2.getData())
+       console.log(Object.is(instance1,instance2))
+    </script>
+</body>
+</html>

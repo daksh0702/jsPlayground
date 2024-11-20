@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        *{
+            box-sizing: border-box;
+        }
+        .container{
+            height: 90vh;
+            width: 100vw;
+            display: grid;
+            grid-template-rows: 1fr 3fr 1fr;
+            grid-template-columns: 1fr 3fr 1fr;
+        }
+        .box{
+            border: 1px solid black;
+        }
+        header{
+            /* grid-area: 1/1/2/-1; */
+            background-color: aqua;
+        }
+        .lsidebar{
+            grid-area: 2/1/3/0;
+            background-color: yellow;
+        }
+        .rsidebar{
+            grid-area: 2/3/3/4;
+            background-color: green;
+        }
+        footer{
+            grid-area: 3/1/4/-1;
+            background-color: purple;
+        }
+        main{
+            background: pink;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+        }
+        .box{
+            width: 100%;
+            min-height: 50px;
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>HEADER</header>
+        <header>HEADER</header>
+        <header>HEADER</header>
+        <div class="lsidebar"></div>
+        <main>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div><div class="box"></div>
+
+
+            <div class="box"></div><div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div><div class="box"></div>
+
+
+            <div class="box"></div><div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+        </main>
+        <div class="rsidebar"></div>
+        <footer></footer>
+    </div>
+</body>
+</html>

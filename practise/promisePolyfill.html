@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+    </style>
+</head>
+<body>
+    <script>
+        function x(){
+            console.log('hey')
+        }
+
+        const a = 'window'
+
+        const obj ={
+            'a': 1
+        }
+
+        Function.prototype.myBind = function(...args){
+            let x = this;
+            return function(...args2){
+                x.call(args[0],...args.slice(1),...args2)
+            }
+        }
+
+        xWithRef = x.bind(this)
+        xWithRef2 = x.myBind(obj)
+        class MyPromise{
+            handlers=[]
+            val = null;
+            constructor(executor){
+                try {
+                    executor(this.resolve,this.reject)
+                } catch (error) {
+                    this.reject(error)
+                }
+            }
+
+            resolve(val){
+                this.val = val
+                this.executeHandlers()
+            }
+            reject(err){
+                this.val = err
+                this.executeHandlers()
+            }
+            then(callback){
+                this.handlers.push(callback)
+                return this
+            }
+            catch(callBack){
+                this.handlers.push(callback)
+            }
+
+            finally(){
+                this.handlers.push(callback)
+                return this
+            }
+
+            executeHandlers(){
+                this.handlers.forEach(callBackfn => {
+                    this.val = callBackfn(val)
+                })
+            }
+            
+        }
+
+        const p1 = new Promise((res,rej)=>{
+            setTimeout(()=>{
+                res(1)
+            }, 1000)
+        }).then(val => console.log(val)).then(val2 => console.log(val2))
+        .catch(err => console.log(err))
+        .finally(()=>{
+            console.log('done')
+        })
+        const p2 =  new Promise((res,rej)=>{
+            res(2)
+        })
+
+        Promise.allSettled([p1,p2]).then(val => console.log(val))
+    </script>
+</body>
+</html>

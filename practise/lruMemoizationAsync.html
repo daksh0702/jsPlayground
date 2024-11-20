@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <input id="input"/>
+    <script>
+        // Implement Promise based memoization with a given cache size 
+        // behaving as an LRU cache with an expiry time and auto cache burst.
+        function memoizeFunction(fn,cacheSize){
+            let cache = new Map();
+            return function(expiryTime, ...args){
+                const key = JSON.stringify(...args)
+                console.log('key',key)
+                if(key == "\"\"")
+                    return {timeStamp:null, expiresIn:null, val:Promise.resolve(null)}
+                let result;
+                if(cache.has(key)){
+                    const {timeStamp,val,expiresIn} = cache.get(key)
+                    if(new Date().getTime()-timeStamp<=expiresIn){
+                        cache.delete(key)
+                        cache.set(key,{timeStamp,val,expiresIn})
+                        result = val
+                    }
+                    else{
+                        result = fn(...args)
+                        cache.delete(key)
+                        cache.set(key,{timeStamp: new Date().getTime(),expiresIn:expiryTime, val: result})
+                    }
+                }
+                else{
+                    if(cache.size==cacheSize){
+                        let keys = cache.keys().toArray()
+                        cache.delete(keys[0])
+                    }
+                    result = fn(...args)
+                    cache.set(key,{timeStamp: new Date().getTime(),expiresIn:expiryTime, val: result})
+                }
+                return {timeStamp: new Date().getTime(),expiresIn:expiryTime, val: result}
+            }
+        }
+        const asyncFn = async (query) => {
+            console.log('made api call')
+            return fetch(`https://dummyjson.com/products/search?q=${query}`)
+        }
+        memoizedCallBack = memoizeFunction(asyncFn,3)
+        document.getElementById('input').addEventListener('keyup',(e)=>{
+            const {timeStamp, expiresIn, val} = memoizedCallBack(5000,e.target.value)
+            val.then(res => res.json()).then(res=> console.log(timeStamp,res)).catch(err => console.log(timeStamp,err))
+        })
+    </script>
+</body>
+</html>

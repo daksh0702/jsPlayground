@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        const requestAnimationFrameIds = new Set()
+        const setTimeoutPolyfill = (fn,delay) => {
+            let start = Date.now()
+            let id;
+            const recursiveHelper = () => {
+                if(!requestAnimationFrameIds.has(id))
+                    return
+                if(Date.now()-start>=delay){
+                    requestAnimationFrameIds.delete(id)
+                    fn()
+                    return
+                }
+                requestAnimationFrame(recursiveHelper)
+            }
+            id = requestAnimationFrame(recursiveHelper)
+            requestAnimationFrameIds.add(id)
+            return id
+        }
+
+        const clearTimeoutPolyfill = (id) => {
+            cancelAnimationFrame(id)
+            requestAnimationFrameIds.delete(id)
+        }
+
+        const id0 = setTimeoutPolyfill(()=>console.log('h'),200)
+        const id2 = setTimeoutPolyfill(()=>console.log('haha'),2000)
+        setTimeout(()=>clearTimeoutPolyfill(id2),1000)
+
+        const requestAnimationFrameIntervalIds = new Set()
+
+        const setIntervalPolyfill = (fn,delay)=>{
+            let start = performance.now()
+            let id;
+            const recursiveHelper = ()=>{
+                if(!requestAnimationFrameIntervalIds.has(id)){
+                    return
+                }
+                if(Date.now()-start>=delay){
+                    start = Date.now()
+                    fn()
+                }
+                requestAnimationFrame(recursiveHelper)
+            }
+            id = requestAnimationFrame(recursiveHelper)
+            requestAnimationFrameIntervalIds.add(id)
+            return id 
+        }
+
+        const clearIntervalPolyfill = (id) => {
+            cancelAnimationFrame(id)
+            requestAnimationFrameIntervalIds.delete(id)
+        }
+
+        const id3 = setIntervalPolyfill(()=>console.log('id3'),200)
+        const id4 = setIntervalPolyfill(()=>console.log('haha'),2000)
+
+        setTimeout(()=>clearIntervalPolyfill(id4),2000)
+        
+    </script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        // Function.call(obj,...args)
+        // Function.apply(obj,[...args])
+        // Funciton.bind(obj,...args)
+
+        // Use normal functions because arrow functions don't have this context
+        let x ={
+            name: 'Daksh'
+        }
+
+        Function.prototype.myCall = function(context,...args){
+            if(typeof this != 'function'){
+                throw new Error('Expected function')
+            }
+            const key = Symbol()
+            context[key] = this
+            const result = context[key](...args)
+            delete context[key]
+            return result
+        }
+
+        Function.prototype.myApply = function(context,args){
+            if(typeof this !='function'){
+                throw new Error('Expected function')
+            }
+            if(!Array.isArray(args)){
+                throw new Error('Expected arguments as array')
+            }
+
+            const key = Symbol()
+            
+            context[key] = this
+            const result = context[key](...args)
+            delete context[key]
+            return result
+        }
+
+        Function.prototype.myBind = function(context,...args){
+            if(typeof this !='function'){
+                throw new Error('Expected function')
+            }
+            const key = Symbol()
+            context[key] = this
+            return (...newArgs) => {
+                context[key](...args,...newArgs)
+            }
+        }
+
+        
+
+        function fn(...args){
+            console.log(this.name,args)
+        }
+
+        
+
+        fn.myCall(x,1,2)
+        fn.myApply(x,[1,2])
+        const boundFn = fn.myBind(x,1,2)
+        boundFn()
+    </script>
+</body>
+</html>

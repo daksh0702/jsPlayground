@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      class Job {
+        id;
+        upstreamJobs;
+        downstreamJobs;
+        callBack;
+        constructor(id, fn, upstreamJobs = [], downstreamJobs = []) {
+          this.upstreamJobs = upstreamJobs;
+          this.downstreamJobs = downstreamJobs;
+          this.callBack = fn;
+          this.id = id;
+          window[id] = this;
+        }
+        async run() {
+          if (this.upstreamJobs.length > 0) return;
+          try {
+            await this.callBack();
+            this.downstreamJobs.forEach((id) => {
+              const job = window[id];
+              if (job) {
+                job.upstreamJobs = job.upstreamJobs.filter(
+                  (workId) => workId != this.id
+                );
+                if (job.upstreamJobs.length == 0) job.run();
+              } else {
+                console.error(`Invalid id: ${id}. Job not found`);
+              }
+            });
+          } catch (error) {
+            console.error(`Error executing job ${this.job}`, error);
+          }
+        }
+      }
+
+      function createAsyncJob(id, delay) {
+        return function () {
+          return new Promise((res) =>
+            setTimeout(() => {
+              console.log(id);
+              res(id);
+              delete window[id];
+            }, delay)
+          );
+        };
+      }
+
+      const targetJobs = 2;
+      let runningJobs = 0;
+      let nodeQueue = [];
+
+      const a = new Job("a", createAsyncJob("a", 100), [], ["d"]);
+
+      const b = new Job("b", createAsyncJob("b", 10), [], ["d"]);
+
+      const c = new Job("c", createAsyncJob("c", 1000), [], ["e"]);
+
+      const d = new Job("d", createAsyncJob("d", 500), ["a", "b"], ["e"]);
+
+      const e = new Job("e", createAsyncJob("e", 300), ["c", "d"], []);
+
+      const runTasks = () => {
+        a.run();
+        b.run();
+        c.run();
+      };
+
+      runTasks();
+    </script>
+  </body>
+</html>

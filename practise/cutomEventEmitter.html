@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>Pub Sub or Event Emitters</h1>
+    <p>
+      An event emitter is a fundamental component in managing state and
+      interactions in complex UIs. Implement an event emitter class with methods
+      to subscribe to an event, unsubscribe from an event, and emit an event.
+      Ensure it handles multiple listeners for the same event and that
+      subscribers can be properly added and removed.
+    </p>
+    <p>
+        const event = new EventEmitter();
+        event.on('customEvent', () => { ... }); // Listener
+        event.emit('customEvent'); // Trigger
+    </p>
+    <script>
+        class EventEmitter{
+            eventRegistry;
+            constructor(){
+                this.eventRegistry = {}
+            }
+            on(eventName, fn){
+                if(this.eventRegistry?.hasOwnProperty(eventName)){
+                    this.eventRegistry[eventName].push(fn)
+                }
+                else{
+                    this.eventRegistry[eventName] = [fn]
+                    // this.eventRegistry[eventName].push(fn)
+                }
+                return this.eventRegistry[eventName].length-1
+            }
+            off(eventName, handler){
+                if(this.eventRegistry.hasOwnProperty(eventName) ){
+                    this.eventRegistry[eventName] = this.eventRegistry[eventName].filter(h => h!== handler)
+                    if(!this.eventRegistry[eventName].length)
+                        delete this.eventRegistry[eventName]
+                }
+                else{
+                    throw new Error(`Event name '${eventName}' or handler ID '${id}' not found`)
+                }
+                
+            }
+            wildcardEmit(exp,...args){
+                for(let key of Object.keys(this.eventRegistry)){
+                    const pattern = new RegExp(`${exp}`)
+                    if(pattern.test(key)){
+                        this.emit(key,args)
+                    }
+                }
+            }
+            emit(eventName, ...args){
+                let flag=false
+                if(this.eventRegistry.hasOwnProperty(eventName)){
+                    this.eventRegistry[eventName].forEach(fn => {
+                        // decide whether to log errors, swallow them, or halt execution based on the severity and the application context.
+                        try {
+                            fn(...args)
+                        } catch (error) {
+                            console.error(error)
+                            flag = true
+                        }
+                        if(flag){
+                            throw new Error(`Event name '${eventName}' or handler ID '${id}' not found`)
+                        }
+                    })
+                }
+            }
+        }
+
+        const event = new EventEmitter()
+        const f1 = () => {
+            console.log('click1')
+        }
+        const f2 = () => {
+            console.log('click2')
+        }
+        const f3 = () => {
+            console.log('click3')
+        }
+        // event.on('click', f1)
+        // event.on('click', f2)
+        event.on('clicking', f3)
+        event.wildcardEmit('cl*')
+    </script>
+  </body>
+</html>

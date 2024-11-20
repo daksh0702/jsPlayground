@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    class LRUCache{
+      cache;
+      cacheSize;
+      constructor(cacheSize){
+        if(!Number.isInteger(cache) || cacheSize<=0)
+          throw new Error('CacheSize must be an integer')
+        this.cache = new Map()
+        this.cacheSize = cacheSize;
+      }
+
+      insert(key,value){
+        try {
+          if(this.cache.size == this.cacheSize){
+            const key = this.cache.keys().next().value
+            this.cache.delete(key)
+          }
+          this.cache.set(key,value)
+        } catch (error) {
+          console.log('Insert Error', error)
+        }
+        
+      }
+
+      get(key){
+        try {
+          if(!this.cache.has(key))
+            return null
+          const val =  this.cache.get(key)
+          this.cache.delete(key)
+          this.cache.set(key,val)
+          return val
+        } catch (error) {
+          console.log('Get Error',error)
+        }
+        
+      }
+    }
+
+    const cache = new LRUCache(3)
+    cache.insert(1,2)
+    console.log(cache.cache)
+    cache.insert(2,3)
+    console.log(cache.cache)
+    cache.insert(3,4)
+    console.log(cache.cache)
+    cache.insert(4,5)
+    console.log(cache.cache)
+    cache.get(2)
+    console.log(cache.cache)
+    cache.insert(5,6)
+    console.log(cache.cache)
+  </script>
+</body>
+</html>

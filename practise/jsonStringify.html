@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+    /**
+     * @param {any} data
+     * @return {string}
+     */
+
+    // undefined, function and symbols are not stringified. Also functions are not included.
+
+    // function checkObjIsCircular(obj){
+    //     const memory = new Set()
+    //     let flag = false
+    //     memory.add(obj)
+    //     function checkObjIsCircularHelper(obj){
+    //         if(flag)
+    //             return
+    //         for(let key in obj){
+    //             if(typeof obj[key] ==="object"){
+    //                 if(memory.has(obj[key])){
+    //                     flag = true
+    //                     return
+    //                 }
+    //                 memory.add(obj[key])
+    //                 checkObjIsCircularHelper(obj[key])
+    //             }
+    //         }
+    //     }
+
+    //     checkObjIsCircularHelper(obj)
+    //     return flag
+    // }
+
+    function checkObjIsCircular(obj){
+        const memory = new Set()
+
+        function checkObjIsCircularHelper(obj){
+            if(typeof obj!=="object" || obj===null)
+                return false
+            if(memory.has(obj))
+                return true
+            memory.add(obj)
+            return Object.keys(obj).some(checkObjIsCircularHelper)
+        }
+    }
+
+    function stringifyHelper(data){
+        if(data === null){
+            return "null"
+        }
+        else if(data === undefined || typeof data ==="function" || typeof data === "symbol"){
+            return undefined
+        }
+        else if(typeof data == 'object'){
+            if(checkObjIsCircular(data)){
+                throw new Error("Can't stringify circular objects")
+            }
+            if(Array.isArray(data)){
+                return '['+data.map(el => stringifyHelper(el) ?? 'null')+']'
+            }
+            let result = []
+            Object.keys(data).forEach(key=> {
+                const val = stringifyHelper(data[key])
+                if(val === undefined)
+                    return
+                result.push(`"${key}": ${val}`)
+            })
+            return '{'+result.join(',')+'}'
+        }
+        else if(typeof data == 'number' || typeof data == 'string' || typeof data =='boolean'){
+            return data.toString()
+        }
+        else if(typeof data == 'bigInt'){
+            throw new Error('Big Int cant be serialized')
+        }
+        else{
+            return undefined
+        }
+    }
+
+    function stringify(data) {
+    // don't process circular, undefined, functions
+        return stringifyHelper(data)
+    }
+
+    console.log(stringify({
+        a: 1,
+        b: null,
+        c: undefined,
+        e: ()=>console.log('a')
+    }))
+
+    </script>
+</body>
+</html>

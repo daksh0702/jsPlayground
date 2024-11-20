@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<input id="inp" data-bind="v1" >
+<input id="inp" data-bind="v2" >
+<body>
+    <!-- ([ngModel])=variable -->
+    <script>
+        // window.addEventListener('updateValue',()=>{
+        //     console.log('in updateValue')
+        //     this.$el.innerText = this.value
+        // })
+
+        class TwoWayBinding extends EventTarget{
+            _value;
+            $el;
+            constructor(val){
+                super()
+                let el = document.querySelector(`[data-bind=${val}]`)
+                if(!el)
+                    throw new Error(`Data vairable doesn't exist for val:${val}`)
+                this.$el = el
+            }
+
+            get value(){
+                return this._value
+            }
+
+            set value(v){
+                this._value = v
+                this.$el.value = v
+                console.log('set',v)
+            }
+
+            handleKeyUp(e){
+                this.value = e.target.value
+            }
+        }
+
+        function handleTwoWayBinding(els){
+            els.forEach(element => {
+                const obj = new TwoWayBinding(element.getAttribute('data-bind'))
+                element.addEventListener('keyup', obj.handleKeyUp.bind(obj))
+            });
+        }
+
+        addEventListener('DOMContentLoaded',()=>{
+           els = document.querySelectorAll('[data-bind]')
+           handleTwoWayBinding(els)
+        })
+    </script>
+</body>
+</html>

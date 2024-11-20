@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spinner</title>
+    <style>
+         .spinnerOuter {
+            width: 200px;
+            height: 200px;
+            border: 1px solid black;
+            background-color: aqua;
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+         }
+
+         .spinnerInner {
+            width: 100px;
+            height: 100px;
+            border: 1px solid black;
+            border-radius: 50%;
+            background-color: white;
+            z-index: 1;
+         }
+
+         @keyframes spinnerAnimation {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+         }
+
+         .spinnerInside {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            background: conic-gradient(white , aqua);
+            animation: spinnerAnimation 2s linear infinite;
+         }
+
+    </style>
+</head>
+<body>
+    <div class="spinnerOuter">
+        <div class="spinnerInside"></div>
+        <div class="spinnerInner"></div>
+    </div>
+</body>
+</html>

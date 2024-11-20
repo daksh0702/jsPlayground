@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      const map = {
+        usd: "$",
+      };
+      function fn(amount, currencyStr, map) {
+        try {
+            console.log('amount',parseFloat(amount))
+            let x = parseFloat(amount)
+
+            console.log(typeof x)
+          if (typeof amount != "string" || Object.is(parseFloat(amount), NaN)) {
+            return 0;
+          }
+
+          if (typeof currencyStr != "string") {
+            throw new Error("Expected String");
+          }
+
+          if (typeof map != "object") {
+            throw new Error("Expected object");
+          }
+
+          let index = amount.indexOf(".");
+          if (index != -1) {
+            amount = amount.slice(0, index + 3);
+          }
+
+          return map[currencyStr] + " " + amount;
+        } catch (error) {
+          console.log(error);
+        }
+      }
+
+    //   console.log(fn("20.215", "usd", map));
+    //   console.log(fn("20.1111", "usd", map));
+    //   console.log(fn("20.1", "usd", map));
+      console.log(fn("abcd", "usd", map));
+    </script>
+  </body>
+</html>

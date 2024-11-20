@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        class PaymentService{
+            constructor(serviceTypeVal){
+                this.serviceType = serviceTypeVal
+            }
+
+            makePayment(payload){
+                const updatePayload = {...payload,serviceType: this.serviceType}
+                payload{
+                    channel: string,
+                    amountToBeTaken: string,
+                    metadata:{
+
+                    }
+                }
+
+                // APIs
+                
+
+            }
+
+            refund(payload){
+                payload{
+                    channel: string
+                    transactionRefId: string,
+                    amountToBeRefunded: string,
+                }
+            }
+        }
+
+        const obj = new PaymentService()
+
+        class Paytm extends PaymentService{
+            serviceType;
+            constructor(){
+                super()
+                this.serviceType = 'paytm'
+            }
+
+            makePayment(payload){
+
+                const parentMakePayment;
+                parentMakePayment({...payload,this.serviceType})
+            }
+        }
+
+        const objPaytm = new Paytm()
+        objPaytm.makePayment()
+
+    </script>
+</body>
+</html>

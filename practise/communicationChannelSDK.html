@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        class LRUCache{
+            size;
+            cache;
+            constructor(size){
+                if(typeof size !== 'number' || size < 1){
+                    throw new Error('Size should be a number greater than 0')
+                }
+                this.size = size;
+                this.cache = new Set()
+            }
+
+            getAll(){
+                return this.cache;
+            }
+
+            insert(val){
+                if(this.cache.has(val)){
+                    this.cache.delete(val)
+                }
+                else if(this.cache.size>=this.size){
+                    const firstEl = this.cache.keys().next().value
+                    this.cache.delete(firstEl)
+                }
+                this.cache.add(val)
+            }
+            clear(){
+                this.cache.clear()
+            }
+        }
+
+        class MySDK{
+            static objectRef;
+            subscriptions;
+            payloadHistory;
+            // {
+            //     'channelName':[]
+            // }
+            constructor(){
+                if(MySDK.objectRef){
+                    return MySDK.objectRef
+                }
+                this.subscriptions = new Map()
+                this.payloadHistory = new Map()
+                MySDK.objectRef = this
+            }
+            publish(channelName,payload){
+                if(typeof channelName!=="string")
+                 throw new Error('subscribe first argument expected to be string')
+                
+                let payloadHistoryChannel = this.payloadHistory.get(channelName)
+                if(payloadHistoryChannel === undefined){
+                    payloadHistoryChannel = new LFUCache(100)
+                }
+                payloadHistoryChannel.insert(payload)
+                this.payloadHistory.set(channelName,payloadHistoryChannel)
+
+                if(this.subscriptions.has(channelName)){
+                    this.subscriptions.get(channelName).forEach(subscription => {
+                        try {
+                            subscription(payload)
+                        } catch (error) {
+                            console.log(error)
+                        }     
+                    })
+                }
+            }
+            subscribe(channelName,callback, type='hot'){
+                if(typeof channelName!=="string")
+                 throw new Error('subscribe first argument expected to be string')
+                if(typeof callback !=="function")
+                    throw new Error('subscribe second argument expected to be function')
+                
+                if(type==='cold'){
+                    let payloadHistoryChannelObj = this.payloadHistory.get(channelName)
+                    if(payloadHistoryChannelObj){
+                        const payloadHistoryChannel = Array.from(payloadHistoryChannelObj.get())
+                        payloadHistoryChannel.forEach(payload => {
+                            callback(payload)
+                        })
+                    }
+                }
+                
+                let list = this.subscriptions.get(channelName)
+                if(list === undefined){
+                    list = []
+                }
+
+                list.push(callback)
+                this.subscriptions.set(channelName,list)
+                return callback
+            }
+            
+            clearSubscription(channelName,callback){
+                if(typeof channelName!=="string")
+                 throw new Error('subscribe first argument expected to be string')
+                if(typeof callback !=="function")
+                    throw new Error('subscribe second argument expected to be function')
+                let list = this.subscriptions.get(channelName)
+                if(!list){
+                    return
+                }
+                list = list.filter(subscription => subscription!==callback)
+                if(list.length)
+                    this.subscriptions.set(channelName,list)
+                else
+                    this.subscriptions.delete(channelName)
+            }
+            clearAllSubscriptions(channelName) {
+                if (typeof channelName !== "string") {
+                    throw new Error("clearAllSubscriptions: first argument must be a string");
+                }
+                this.subscriptions.delete(channelName);
+            }
+        }
+
+        const A = new MySDK()  
+        const B = new MySDK() 
+        const C = new MySDK() 
+        A.publish('abcd','cold message 1')
+        A.publish('abcd','cold message 2')
+        const bsub = B.subscribe('abcd',(data) => { 
+            console.log('B:',data) // {a: 1} 
+        })
+        const csub = C.subscribe('abcd',(data) => { 
+            console.log('C:',data) // {a: 1} 
+        },'cold')
+        A.publish('abcd','hello')
+        C.clearSubscription('abcd',csub)
+        setTimeout(()=>A.publish('abcd','hi'),3000)
+    </script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      // approach 1: execute input as soon as running drops
+      function mapLimit(inputs, limit, fn, endCallback){
+        let done = 0, running = 0, iterator = 0
+        let ops = new Array(inputs.length)
+        async function wrapper(fn, index, callback){
+          try {
+            const op = await fn(inputs[index])
+            ops[index] = op
+            callback(op)
+            done++;
+            running--;
+          } catch (error) {
+            ops[index] = error 
+          }
+          finally{
+            if(done<inputs.length && iterator<inputs.length){
+              running++;
+              wrapper(fn, iterator++,callback)
+            }
+            else if(running === 0){
+              endCallback(ops)
+            }
+          }
+          
+        }
+        for(let i=0;i<limit;i++){
+          running++;
+          wrapper(fn,iterator, console.log)
+          iterator++
+        }
+     }
+
+     // approach 2: Do Batch Processing
+     function mapLimitBatch(inputs, limit, fn, endCallback){
+      const outputs = new Array(inputs.length)
+
+      const helper = async (start,end) => {
+        const ps = []
+        for(let i=start;i<=end;i++){
+          ps.push(fn(inputs[i]))
+        }
+        const vals = await Promise.allSettled(ps)
+        console.log('vals',vals)
+        vals.forEach((val,ind) => outputs[ind+start] = vals[ind]?.value)
+        if(end+1<inputs.length){
+          const endVal = (end+limit < inputs.length-1) ? end+limit : inputs.length-1
+          helper(end+1,endVal)
+        }
+        else {
+          endCallback(outputs)
+        }
+      }
+      helper(0,limit-1)
+     }
+
+     mapLimit([1,4,2,3], 2, (arg)=>{
+      return new Promise(res => {
+        setTimeout(()=>{
+          res(arg)
+        },arg*1000)
+      })
+     }, (arg)=>{
+      console.log('END callback',arg)
+     })
+
+    </script>
+  </body>
+</html>

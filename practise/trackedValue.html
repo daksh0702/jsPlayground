@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+   const input = document.createElement('input')
+   class TrackedValue extends EventTarget{
+    constructor({value=null}){
+      super()
+      this._value = value
+    }
+    get value(){
+      return this._value
+    }
+    set value(val){
+      this._value = val
+      const ev = new Event('change')
+      this.dispatchEvent(ev)
+    }
+   }
+   const state = new TrackedValue({value: 'Hi'})
+   function model(state,input){
+      // update state when input changes
+      // update input when state changes
+      input.value = state.value
+      input.addEventListener('change',(e)=>{
+       state.value  = e.target.value
+      })
+      state.addEventListener('change',(e)=>{
+        input.value = e.target.value
+      })
+   }
+   model(state,input)
+   document.body.appendChild(input)
+   console.log(input.value) // hi
+   state.value = 'dev'
+   console.log(input.value) // dev
+   input.value = 'engineeringChirag'
+   input.dispatchEvent(new Event('change'))
+   console.log(input.value) // engineeringChirag
+  </script>
+</body>
+</html>

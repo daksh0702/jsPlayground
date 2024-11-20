@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Min Heap</title>
+</head>
+<body>
+    <script>
+        class minHeap{
+            root;
+            constructor(){
+                this.root = []
+            }
+            insert(val){
+                this.root.push(val);
+                let i=this.root.length-1
+                while(i>0){
+                    let parent = Math.floor((i-1)/2)
+                    if(this.root[parent]>this.root[i]){
+                        this.swap(i,parent)
+                    }
+                    i=parent
+                }
+            }
+            pop(){
+                if(this.root.length <= 1){
+                    return this.root.pop()
+                }
+                const result = this.root[0]
+                this.root[0] = this.root.pop()
+                let i = 0
+                while(1){
+                    let lchild = 2*i+1
+                    let rchild = 2*i+2
+                    let smallest = i;
+                    if(lchild<this.root.length && this.root[lchild]<this.root[i]){
+                        smallest = lchild
+                    }
+                    if(rchild<this.root.length && this.root[rchild]<this.root[i]){
+                        smallest = rchild
+                    }
+                    if(smallest!=i){
+                        this.swap(smallest,i)
+                    }
+                    else{
+                        break;
+                    }
+                }
+                return result
+            }
+            checkMin(){
+                return this.root[0] || null
+            }
+            swap(ind1,ind2){
+                const t = this.root[ind1]
+                this.root[ind1] = this.root[ind2]
+                this.root[ind2] = t
+            }
+        }
+
+        const mh = new minHeap()
+        mh.insert(4)
+        mh.insert(3)
+        mh.insert(5)
+        mh.insert(1)
+        mh.insert(6)
+        mh.insert(4)
+
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .toasty{
+            display: flex;
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: white;
+            color: black;
+            width: 200px;
+            height: 50px;
+            padding: 10px;
+            border: 1px solid black;
+            & p{
+                width: 90%;
+            }
+
+            & button {
+                width: 25px;
+                height: 25px;
+                padding: 5px;
+                text-align: center;
+            }
+
+            & .animation{
+                width: 100%;
+                background: blue;
+                animation: loader 3s reverse;
+            }
+
+        }
+
+        @keyframes loader {
+                from {
+                    width: 100%;
+                }
+                to {
+                    width: 0%;
+                }
+            }
+    </style>
+</head>
+<body>
+    <button onclick="addToasty(event)">Add Toasty</button>
+    <script>
+        function closeToasty(id,timerId){
+            let $el = document.getElementById(id)
+            if($el){
+                document.body.removeChild($el)
+                clearTimeout(timerId)
+            }
+        }
+
+        function addToasty(event,time=3000){
+            const id = new Date().getTime()+Math.random()
+            const $el = document.createElement('div')
+            $el.id = id
+            const timerId = setTimeout(()=>{
+               if($el) {
+                document.body.removeChild($el)
+               }
+            },time)
+            $el.innerHTML = `
+                    <p>hi You</p>
+                    <div class="animation"></div>
+                    <button onclick="closeToasty(${$el.id},${timerId})">X</button>
+            
+            `
+            $el.classList.add('toasty')
+            document.body.appendChild($el)
+            
+        }
+    </script>
+</body>
+</html>

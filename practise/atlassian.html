@@ -1,0 +1,156 @@
+<!-- Design Progress bar with a button. 
+On clicking button new progress bar will keep on adding. 
+Each progress bar takes 5 seonds to complete and at a moment maximum 5 progress bars can run on the screen and others are pending and has to be added only when any running Progress bar is completed. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .container{
+            width: 100%;
+            height: 100vh;
+        }
+        .d-flex{
+            display: flex;
+        }
+        .m-l-10{
+            margin-left: 10px;
+        }
+        .bar-container{
+            margin: auto;
+            width: 50%;
+            height: 50%;
+            margin-top: 20px;
+            border: 2px solid black;
+            .bar{
+                width: 0;
+                height: 20px;
+                margin-bottom: 10px;
+                background: pink;
+                /* animation: load linear forwards 5s; */
+            }
+        }
+
+        /* @keyframes load {
+            from { 
+                width: 0;
+            }
+            to {
+                width: 100%;
+            }
+        } */
+    </style>
+    <script type="module">
+        import { v4 as uuidv4 } from 'https://jspm.dev/uuid';
+        window.uuidv4 = uuidv4;
+    </script>
+</head>
+<body>
+    <div class="container">
+        <button class="btn" onclick="incrementPendingBars()">Add ProgressBar</button>
+        <div class="d-flex">
+            <div>ProgressBar Pending: </div>
+            <div class="m-l-10" id="pendingBars">
+                0
+            </div>
+        </div>
+        <div class="bar-container">
+    
+        </div>
+    </div>
+    <script>
+        const $barContainer = document.querySelector('.bar-container');
+        let pendingBars = 0;
+        let activeBars = 0;
+        let checkForPendingBarsRunning = false;
+        const $pendingBars = document.querySelector('#pendingBars')
+        const threshold = 5
+        const animationDuration = 5
+
+        function handleAnimationEnd(event){
+            event.target.remove()
+            activeBars--;
+            checkForPendingBars()
+        }
+
+
+        function throttle(fn,delay){
+            let timestamp = Date.now()
+            return function(...args){
+                setTimeout(()=>{
+                    let nowDate = Date.now()
+                    if(nowDate-timestamp>=delay){
+                        timestamp=nowDate
+                        fn(...args)
+                    }
+                },delay)
+            }
+        }
+
+        function throttle2(fn,delay){
+            let timestamp = 0
+            return function(...args){
+                const time = Date.now()
+                if(time-timestamp>=delay){
+                    timestamp=time
+                    fn(...args)
+                }
+            }
+        }
+
+        function debounce(fn,delay){
+            let timeoutId;
+            return function(...args){
+                if(timeoutId){
+                    clearTimeout(timeoutId)
+                }
+               timeoutId = setTimeout(()=>fn(...args),delay)
+            }
+        }
+
+
+        function appendActiveBar(){
+            const div = document.createElement('div')
+            div.classList.add('bar')
+            div.id = uuidv4();
+            
+            // div.addEventListener('animationend', handleAnimationEnd)
+            $barContainer.append(div)
+            activeBars++
+            let width = 0
+            const interval = setInterval(()=>{
+                if(width>=100){
+                    activeBars--;
+                    clearInterval(interval)
+                    div.remove()
+                    if(!checkForPendingBarsRunning)
+                    checkForPendingBars()
+                    return
+                }
+                width=width+0.2
+                div.style.width = width+'%'
+            },10)
+             
+        }
+
+        function checkForPendingBars(){
+            checkForPendingBarsRunning = true
+            while(activeBars<threshold && pendingBars > 0){
+                pendingBars--;
+                $pendingBars.textContent = pendingBars
+                appendActiveBar()
+            }
+            checkForPendingBarsRunning = false
+        }
+
+        function incrementPendingBars(){
+            pendingBars++;
+            $pendingBars.textContent = pendingBars
+            if(!checkForPendingBarsRunning)
+                checkForPendingBars()
+        }
+    </script>
+</body>
+</html>

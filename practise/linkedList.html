@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      class ListNode {
+        data;
+        next;
+        constructor(val){
+          this.data = val
+          this.next = null;
+        }
+      }
+
+      class List{ 
+        head;
+        tail;
+        constructor(){
+          this.head = null;
+          this.tail = null
+        }
+        add(val){
+          if(this.head){
+            let t = this.head
+            while(t.next!=null){
+              t=t.next
+            }
+            t.next = new ListNode(val)
+            this.tail = t.next
+          }
+          else{
+            this.head = new ListNode(val)
+            this.tail = this.head
+          }   
+        }
+
+        delete(data){
+          if(!this.head)
+            return
+          let t = this.head
+          if(this.head.data == data){
+            // console.log(this.head.data,this.head.next.data)
+            this.head = this.head.next
+            if(!this.head)
+              this.tail = null
+            return
+          }
+          while(t.next && t.next.data!=data){
+            t=t.next
+          }
+          if(t.next && t.next.data == data){
+            if(t.next == this.tail)
+              this.tail = t
+            let temp = t.next;
+            t.next =t.next.next
+          }
+        }
+      }
+
+      const list = new List()
+      list.add(1)
+      console.log(list.head.data,list.tail.data)
+      list.add(2)
+      console.log(list.head.data,list.tail.data)
+      list.add(3)
+      console.log(list.head.data,list.tail.data)
+      list.delete(1)
+      console.log(list.head.data,list.tail.data)
+      list.delete(3)
+      console.log(list.head.data,list.tail.data)
+      list.delete(2)
+
+      console.log(list)
+    </script>
+  </body>
+</html>

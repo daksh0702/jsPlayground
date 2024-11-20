@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    .container {
+      display: flex;
+      align-items: center;
+      width: 80vw;
+      height: 200px;
+      /* border: 1px solid black; */
+      margin: auto;
+      position: relative;
+      overflow: hidden;
+      mask-image: linear-gradient(
+        to right,
+        rgba(0, 0, 0, 0) rgba(0, 0, 0, 1) 20%,
+        rgba(0, 0, 0, 1) 80%,
+        rgba(0, 0, 0, 0)
+      );
+    }
+
+    .box {
+      position: absolute;
+      background: red;
+      min-width: 150px;
+      height: 50px;
+      border: 1px solid black;
+      margin-right: 20px;
+      left: max(100%, calc(150px * 8));
+      animation: scrollLeft 10s linear none infinite;
+    }
+
+    .container .box:nth-child(1) {
+      animation-delay: 0s;
+    }
+
+    .container .box:nth-child(2) {
+      animation-delay: calc(10s / 7);
+    }
+
+    .container .box:nth-child(3) {
+      animation-delay: calc(10s * 2 / 7);
+    }
+
+    .container .box:nth-child(4) {
+      animation-delay: calc(10s * 3 / 7);
+    }
+
+    .container .box:nth-child(5) {
+      animation-delay: calc(10s * 4 / 7);
+    }
+
+    .container .box:nth-child(6) {
+      animation-delay: calc(10s * 5 / 7);
+    }
+
+    .container .box:nth-child(7) {
+      animation-delay: calc(10s * 6 / 7);
+    }
+
+    @keyframes scrollLeft {
+      to {
+        left: -200px;
+      }
+    }
+  </style>
+  <script>
+    function ArrayChallenge(trimStr) { 
+  const anagramDictionary = new Map()
+  const str = trimStr.trim()
+  ans = 0
+  let i=0,j=0;
+  while(i<str.length){
+    j=i;
+    while(j<str.length && str[j]!==' '){
+      j++
+    }
+    let word = str.slice(i,j)
+    const mapWord = word.split('').sort().join('')
+    let list = anagramDictionary.get(mapWord)
+    if(list){
+      const foundDuplicate = list.some(el => el==word)
+      if(!foundDuplicate){
+        ans++
+        list.push(word)
+        anagramDictionary.set(mapWord,list)
+      }
+    }
+    else{
+      anagramDictionary.set(mapWord,[word])
+    }
+    i=j;
+    while(i<str.length && str[i]===' ')
+      i++
+  }
+  // code goes here  
+  return ans; 
+
+}
+    ArrayChallenge("aa aa odg dog gdo")
+  </script>
+  <body>
+    <div class="container">
+      <div class="box"></div>
+      <div class="box"></div>
+      <div class="box"></div>
+      <div class="box"></div>
+      <div class="box"></div>
+      <div class="box"></div>
+      <div class="box"></div>
+    </div>
+  </body>
+</html>

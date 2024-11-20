@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .draggable{
+            width: 100px;
+            height: 100px;
+            background-color: coral;
+            margin: 20px;
+        }
+
+        .dropZone{
+            width: 200px;
+            height: 200px;
+            border: 2px dashed #ccc;
+            margin: 20px;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="draggable" id="1" draggable="true">Drag Me!</div>
+    <div class="dropZone">
+
+    </div>
+    <script>
+        const draggable = document.querySelector('.draggable')
+        const dropZone = document.querySelector('.dropZone')
+        draggable.addEventListener('dragstart',(e)=>{
+            e.dataTransfer.setData('text/plain', e.target.id)
+            e.dataTransfer.effectAllowed = 'move'; // (copy, link, move)
+        })
+        dropZone.addEventListener('dragover', (e)=>{
+            e.preventDefault()
+            e.dataTransfer.dropEffect = 'move'
+        })
+        dropZone.addEventListener('drop', (e)=>{
+            e.preventDefault()
+            const data = e.dataTransfer.getData('text/plain')
+            console.log(data)
+            dropZone.appendChild(draggable)
+        })
+    </script>
+</body>
+</html>
+
+<!-- draggable.addEventListener('dragstart', (e) => {
+    e.dataTransfer.setData('text/plain', 'This text may be dragged');
+    e.dataTransfer.effectAllowed = 'move';
+  });
+
+  dropzone.addEventListener('dragover', (e) => {
+    e.preventDefault(); // Necessary to allow a drop
+    e.dataTransfer.dropEffect = 'move';
+  });
+
+  dropzone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const data = e.dataTransfer.getData('text/plain');
+    console.log(data);
+    dropzone.appendChild(draggable); // Move draggable element to dropzone
+  }); -->
